@@ -9,6 +9,7 @@ const { submitLead, validateLead } = await import(`data:text/javascript;base64,$
 const keys = ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "LEAD_WEBHOOK_URL"];
 const originalEnv = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
 const originalFetch = globalThis.fetch;
+const originalConsoleError = console.error;
 const lead = { name: "Тест", phone: "+380501234567", email: "test@example.com", company: "BAS Expert", message: "Тестове звернення", source: "/" };
 
 function configure(values = {}) {
@@ -18,6 +19,7 @@ function configure(values = {}) {
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
+  console.error = originalConsoleError;
   keys.forEach((key) => {
     if (originalEnv[key] === undefined) delete process.env[key];
     else process.env[key] = originalEnv[key];
@@ -63,6 +65,40 @@ test("network timeout returns a delivery error", async () => {
   configure({ TELEGRAM_BOT_TOKEN: "test-token", TELEGRAM_CHAT_ID: "123" });
   globalThis.fetch = async () => { throw new DOMException("Timeout", "TimeoutError"); };
   assert.equal((await submitLead(lead)).status, 502);
+});
+
+test("Telegram configuration errors produce safe, specific server diagnostics", async () => {
+  configure({ TELEGRAM_BOT_TOKEN: "test-token", TELEGRAM_CHAT_ID: "123" });
+  const errors = [
+    { status: 401, description: "Unauthorized", reason: "invalid_bot_token" },
+    { status: 400, description: "Bad Request: chat not found", reason: "chat_not_found" },
+    { status: 403, description: "Forbidden: bot was blocked by the user", reason: "bot_blocked" },
+    { status: 403, description: "Forbidden: bot is not a member", reason: "chat_access_denied" },
+    { status: 429, description: "Too Many Requests", reason: "rate_limited" },
+  ];
+  for (const error of errors) {
+    const logs = [];
+    console.error = (...values) => logs.push(values);
+    globalThis.fetch = async () => Response.json(
+      { ok: false, error_code: error.status, description: error.description },
+      { status: error.status },
+    );
+    assert.equal((await submitLead(lead)).status, 502);
+    assert.equal(logs[0][1].reason, error.reason);
+    assert.equal(logs[0][1].upstreamStatus, error.status);
+    assert.ok(!JSON.stringify(logs).includes("test-token"));
+    assert.ok(!JSON.stringify(logs).includes(lead.email));
+  }
+});
+
+test("native fetch errors never expose the bot token in server diagnostics", async () => {
+  configure({ TELEGRAM_BOT_TOKEN: "test-token", TELEGRAM_CHAT_ID: "123" });
+  const logs = [];
+  console.error = (...values) => logs.push(values);
+  globalThis.fetch = async () => { throw new Error("https://api.telegram.org/bottest-token/sendMessage"); };
+  assert.equal((await submitLead(lead)).status, 502);
+  assert.equal(logs[0][1].reason, "network_error");
+  assert.ok(!JSON.stringify(logs).includes("test-token"));
 });
 
 test("a CRM failure preserves successful primary Telegram delivery", async () => {

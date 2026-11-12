@@ -11,6 +11,15 @@ export type LeadResult =
   | { ok: true; message: string }
   | { ok: false; message: string; status: 502 | 503 };
 
+class DeliveryError extends Error {
+  constructor(
+    reason: string,
+    readonly upstreamStatus: number,
+  ) {
+    super(reason);
+  }
+}
+
 export async function submitLead(payload: LeadPayload): Promise<LeadResult> {
   const webhookUrl = process.env.LEAD_WEBHOOK_URL?.trim();
   const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
@@ -35,8 +44,18 @@ export async function submitLead(payload: LeadPayload): Promise<LeadResult> {
   const results = await Promise.allSettled(deliveries.map((delivery) => delivery.promise));
   results.forEach((result, index) => {
     if (result.status === "rejected") {
-      // Fetch errors may contain the bot token. Log only the delivery channel.
-      console.error("[lead]", { event: "delivery_failed", channel: deliveries[index].channel });
+      const error: unknown = result.reason;
+      // Only our fixed error codes are logged. Native fetch errors can contain
+      // the bot token or other credentials in their URL and message.
+      let reason = "network_error";
+      if (error instanceof DeliveryError) reason = error.message;
+      else if (error instanceof Error && error.name === "TimeoutError") reason = "timeout";
+      console.error("[lead]", {
+        event: "delivery_failed",
+        channel: deliveries[index].channel,
+        reason,
+        upstreamStatus: error instanceof DeliveryError ? error.upstreamStatus : undefined,
+      });
     }
   });
 
@@ -59,7 +78,7 @@ async function sendWebhook(url: string, payload: LeadPayload) {
     signal: AbortSignal.timeout(10_000),
     redirect: "error",
   });
-  if (!response.ok) throw new Error("Webhook delivery failed");
+  if (!response.ok) throw new DeliveryError("webhook_rejected", response.status);
 }
 
 async function sendTelegram(token: string, chatId: string, payload: LeadPayload) {
@@ -81,11 +100,19 @@ async function sendTelegram(token: string, chatId: string, payload: LeadPayload)
     signal: AbortSignal.timeout(10_000),
     redirect: "error",
   });
-  if (!response.ok) throw new Error("Telegram delivery failed");
-  const result: unknown = await response.json();
-  if (!result || typeof result !== "object" || !("ok" in result) || result.ok !== true) {
-    throw new Error("Telegram rejected the message");
-  }
+  const result: unknown = await response.json().catch(() => null);
+  if (response.ok && result && typeof result === "object" && "ok" in result && result.ok === true) return;
+
+  const description = result && typeof result === "object" && "description" in result && typeof result.description === "string"
+    ? result.description.toLowerCase()
+    : "";
+  let reason = "telegram_rejected";
+  if (response.status === 401) reason = "invalid_bot_token";
+  else if (description.includes("chat not found")) reason = "chat_not_found";
+  else if (description.includes("bot was blocked")) reason = "bot_blocked";
+  else if (response.status === 403) reason = "chat_access_denied";
+  else if (response.status === 429) reason = "rate_limited";
+  throw new DeliveryError(reason, response.status);
 }
 
 export function validateLead(body: unknown):
