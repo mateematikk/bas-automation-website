@@ -20,7 +20,7 @@ export function Integrations() {
       id="integrations"
       eyebrow="Інтеграції"
       title="З'єднуємо системи, які раніше працювали окремо"
-      description="Інтегруємо BAS із сервісами, якими ви вже користуєтесь. Без вигаданих «партнерств» — лише робочий обмін даними."
+      description="Налаштовуємо інтеграції BAS із CRM, інтернет-магазинами, маркетплейсами, доставкою та електронним документообігом через доступні API й механізми обміну."
       align="center"
     >
       <div className="mx-auto mb-10 max-w-3xl rounded-2xl border border-border bg-white p-5 shadow-sm sm:p-8">
@@ -47,7 +47,7 @@ export function Integrations() {
         {integrations.map((name) => (
           <li
             key={name}
-            className="flex min-h-[4.5rem] items-center justify-center rounded-2xl border border-border bg-white px-3 py-4 text-center text-sm font-semibold text-graphite shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/35 hover:shadow-md"
+            className="flex min-h-[4.5rem] items-center justify-center rounded-2xl border border-border bg-white px-3 py-4 text-center text-sm font-semibold text-graphite shadow-sm transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-accent/35 hover:shadow-md"
           >
             {name}
           </li>

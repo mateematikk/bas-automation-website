@@ -3,10 +3,10 @@
 :root {
   --background: #f4f7fb;
   --foreground: #0f172a;
-  --muted: #64748b;
+  --muted: #526176;
   --card: #ffffff;
   --border: #e2e8f0;
-  --accent: #0284c7;
+  --accent: #0369a1;
   --accent-hover: #0369a1;
   --accent-soft: #e0f2fe;
   --navy: #0b1220;
@@ -46,6 +46,9 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
   text-rendering: optimizeLegibility;
 }
+
+h1, h2, h3 { text-wrap: balance; }
+section[id], main[id] { scroll-margin-top: calc(var(--header-h) + 1rem); }
 
 ::selection {
   background: color-mix(in srgb, var(--accent) 28%, white);
@@ -118,6 +121,10 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
   html {
     scroll-behavior: auto;
   }

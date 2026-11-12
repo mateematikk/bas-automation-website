@@ -12,16 +12,26 @@ import { CTA } from "@/components/CTA";
 import { FAQ } from "@/components/FAQ";
 import { ContactForm } from "@/components/ContactForm";
 import { Footer } from "@/components/Footer";
+import { AIAgents } from "@/components/AIAgents";
+import { StructuredData } from "@/components/StructuredData";
+import { pageMetadata } from "@/lib/seo";
+import { siteConfig } from "@/lib/config";
+
+export const metadata = {
+  ...pageMetadata({ title: "Автоматизація бізнесу на BAS та ШІ-агенти", description: siteConfig.description, path: "/" }),
+  title: { absolute: "BAS Expert — автоматизація бізнесу на BAS та ШІ-агенти" },
+};
 
 export default function Home() {
   return (
     <>
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <Hero />
-        <AutomationAreas />
         <Services />
+        <AIAgents />
         <Integrations />
+        <AutomationAreas />
         <Problems />
         <Process />
         <Advantages />
@@ -32,6 +42,19 @@ export default function Home() {
         <ContactForm />
       </main>
       <Footer />
+      <StructuredData
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: siteConfig.name,
+          description: siteConfig.description,
+          url: siteConfig.url || undefined,
+          email: siteConfig.contacts.email || undefined,
+          telephone: siteConfig.contacts.phone || undefined,
+          sameAs: siteConfig.contacts.telegram ? [siteConfig.contacts.telegram] : undefined,
+          knowsAbout: ["BAS", "Автоматизація бізнесу", "Програмування 1С", "ШІ-агенти", "Інтеграції облікових систем"],
+        }}
+      />
     </>
   );
 }

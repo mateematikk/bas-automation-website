@@ -20,18 +20,21 @@ export function Header() {
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
     };
-  }, [open]);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, []);
 
   const close = () => setOpen(false);
 
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 border-b transition-all duration-200",
+        "sticky top-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-200",
         scrolled
           ? "border-border/80 bg-white/90 shadow-sm backdrop-blur-md"
           : "border-transparent bg-background/80 backdrop-blur-sm",
@@ -40,13 +43,13 @@ export function Header() {
       <Container className="flex h-[var(--header-h)] items-center justify-between gap-4">
         <Link
           href="/"
-          className="group flex items-center gap-2.5"
+          className="group flex shrink-0 items-center gap-2.5"
           onClick={close}
         >
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-navy text-sm font-bold text-white shadow-sm transition-transform group-hover:scale-105">
-            І
+            BE
           </span>
-          <span className="font-display text-lg font-semibold tracking-tight text-navy">
+          <span className="whitespace-nowrap font-display text-lg font-semibold tracking-tight text-navy">
             {siteConfig.name}
           </span>
         </Link>
@@ -64,9 +67,10 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Button href="#contacts" className="hidden sm:inline-flex" size="md">
-            Отримати консультацію
-          </Button>
+          <Link href="/ru/uslugi" hrefLang="ru" lang="ru" className="rounded-lg px-2 py-2 text-sm font-semibold text-muted hover:text-accent" aria-label="Услуги на русском языке">RU</Link>
+          <div className="hidden sm:block">
+            <Button href="/#contacts" size="md">Отримати консультацію</Button>
+          </div>
           <button
             type="button"
             className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-white text-navy lg:hidden"
@@ -75,7 +79,7 @@ export function Header() {
             aria-label={open ? "Закрити меню" : "Відкрити меню"}
             onClick={() => setOpen((v) => !v)}
           >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {open ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
           </button>
         </div>
       </Container>
@@ -99,7 +103,7 @@ export function Header() {
               {item.label}
             </a>
           ))}
-          <Button href="#contacts" className="mt-2 w-full" onClick={close}>
+          <Button href="/#contacts" className="mt-2 w-full" onClick={close}>
             Отримати консультацію
           </Button>
         </Container>

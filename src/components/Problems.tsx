@@ -19,7 +19,7 @@ export function Problems() {
       tone="dark"
       eyebrow="Проблеми, які ми вирішуємо"
       title="Впізнаєте свій день?"
-      description="Ручна робота між системами — це не «так склалось», а втрачений час і ризик помилок."
+      description="Повторне введення даних забирає час команди та збільшує ризик помилок в обліку."
     >
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {problems.map((problem) => (
@@ -40,7 +40,7 @@ export function Problems() {
 
       <div className="mt-10 rounded-2xl border border-sky-400/20 bg-gradient-to-br from-sky-500/15 to-transparent p-6 sm:p-8">
         <p className="font-display text-xl font-semibold text-white sm:text-2xl">
-          Автоматизуємо процес замість того, щоб автоматизувати ручну роботу.
+          Об’єднуємо замовлення, документи та облік в узгоджений процес.
         </p>
         <p className="mt-3 max-w-2xl text-sm text-slate-300 sm:text-base">
           Спочатку розбираємо, як насправді працює бізнес. Потім проєктуємо

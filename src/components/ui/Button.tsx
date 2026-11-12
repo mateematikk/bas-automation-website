@@ -35,7 +35,7 @@ const sizes: Record<ButtonSize, string> = {
 };
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60 active:scale-[0.98]";
+  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60 active:scale-[0.98]";
 
 export function Button(props: ButtonAsButton | ButtonAsLink) {
   const {
@@ -47,7 +47,7 @@ export function Button(props: ButtonAsButton | ButtonAsLink) {
 
   const classes = cn(base, variants[variant], sizes[size], className);
 
-  if ("href" in props && props.href) {
+  if (props.href !== undefined) {
     return (
       <Link href={props.href} className={classes} onClick={props.onClick}>
         {children}
@@ -55,9 +55,12 @@ export function Button(props: ButtonAsButton | ButtonAsLink) {
     );
   }
 
-  const { href: _href, ...buttonProps } = props as ButtonAsButton;
+  const buttonProps = { ...props };
+  delete buttonProps.href;
+  delete buttonProps.variant;
+  delete buttonProps.size;
   return (
-    <button className={classes} {...buttonProps}>
+    <button {...buttonProps} className={classes}>
       {children}
     </button>
   );

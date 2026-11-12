@@ -14,7 +14,7 @@ const steps = [
   {
     num: "03",
     title: "Впровадження",
-    description: "Налаштовуємо BAS та інтеграції.",
+    description: "Налаштовуємо BAS, інтеграції та ШІ-агентів.",
   },
   {
     num: "04",
@@ -35,7 +35,7 @@ export function Process() {
       className="bg-white"
       eyebrow="Як ми працюємо"
       title="Прозорий процес від першої розмови до супроводу"
-      description="Кожен етап має зрозумілий результат — без «чорної скриньки» для власника бізнесу."
+      description="Узгоджуємо задачі, обсяг робіт та критерії приймання. Перевіряємо результат на ваших робочих сценаріях."
     >
       {/* Mobile: vertical timeline */}
       <ol className="relative space-y-6 border-l border-border pl-6 md:hidden">
@@ -52,10 +52,6 @@ export function Process() {
 
       {/* Desktop: horizontal process */}
       <ol className="relative hidden md:grid md:grid-cols-5 md:gap-4">
-        <div
-          className="absolute top-7 right-4 left-4 h-px bg-gradient-to-r from-accent/20 via-accent/50 to-accent/20"
-          aria-hidden
-        />
         {steps.map((step) => (
           <li key={step.num} className="relative flex flex-col items-start">
             <span className="relative z-10 mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-white font-display text-sm font-bold text-accent shadow-sm">

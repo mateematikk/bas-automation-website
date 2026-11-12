@@ -1,58 +1,79 @@
-# Інтегра — сайт автоматизації бізнесу на BAS
+# BAS Expert
 
-Сучасний корпоративний лендинг для компанії, яка впроваджує BAS, будує інтеграції та супроводжує бізнес-системи.
+Корпоративный сайт компании по автоматизации бизнеса на BAS, разработке ИИ-агентов и интеграциям. Основной контент на украинском, страница услуг на русском доступна по `/ru/uslugi`.
 
-## Стек
+## Запуск и проверка
 
-- Next.js (App Router)
-- TypeScript
-- Tailwind CSS
-- Lucide Icons
-
-## Запуск локально
+Требуется Node.js 20.9 или новее.
 
 ```bash
 npm install
 npm run dev
-```
-
-Відкрийте [http://localhost:3000](http://localhost:3000).
-
-## Збірка
-
-```bash
+npm test
 npm run build
 npm start
 ```
 
-## Environment variables
+В Windows PowerShell с ограничением запуска скриптов используйте `npm.cmd`.
 
-Скопіюйте `.env.example` у `.env.local` і заповніть значення:
+Шрифты Manrope и Onest хранятся локально в `src/app/fonts` вместе с лицензиями OFL. Сборка использует локальные файлы.
 
-| Змінна | Призначення |
+## Настройки
+
+Скопируйте `.env.example` в `.env.local` и заполните необходимые значения. Для хостинга добавьте их в настройки окружения проекта. После изменения переменных пересоберите и перезапустите сайт.
+
+| Переменная | Назначение |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | Canonical / SEO URL сайту |
-| `NEXT_PUBLIC_CONTACT_PHONE` | Телефон (відображення) |
-| `NEXT_PUBLIC_CONTACT_PHONE_HREF` | `tel:` посилання |
-| `NEXT_PUBLIC_CONTACT_EMAIL` | Email |
-| `NEXT_PUBLIC_CONTACT_TELEGRAM` | Посилання на Telegram |
-| `NEXT_PUBLIC_CONTACT_TELEGRAM_LABEL` | Підпис Telegram |
-| `LEAD_WEBHOOK_URL` | Webhook / CRM endpoint для заявок |
-| `TELEGRAM_BOT_TOKEN` | Токен Telegram-бота |
-| `TELEGRAM_CHAT_ID` | Chat ID для заявок |
+| `NEXT_PUBLIC_SITE_URL` | Рабочий HTTPS-домен сайта, например `https://ваш-домен`. Используется в canonical, sitemap и ссылках превью |
+| `NEXT_PUBLIC_CONTACT_PHONE` | Телефон для отображения |
+| `NEXT_PUBLIC_CONTACT_PHONE_HREF` | Ссылка вида `tel:+380...`. Если пуста, формируется из телефона |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Email компании |
+| `NEXT_PUBLIC_CONTACT_TELEGRAM` | Публичная ссылка на Telegram для связи |
+| `NEXT_PUBLIC_CONTACT_TELEGRAM_LABEL` | Подпись Telegram |
+| `TELEGRAM_BOT_TOKEN` | Серверный токен бота для доставки заявок |
+| `TELEGRAM_CHAT_ID` | Получатель заявок |
+| `LEAD_WEBHOOK_URL` | Дополнительный серверный endpoint CRM |
+| `GOOGLE_SITE_VERIFICATION` | Значение content метатега подтверждения Search Console |
 
-Без каналів доставки форма все одно працює: заявки логуються на сервері.
+Контактные ссылки появляются после заполнения соответствующих значений. До указания рабочего домена canonical отсутствует, sitemap пуст, а Next.js использует локальный адрес для ссылок изображений превью.
 
-## Деплой на Vercel
+## Подключение Telegram
 
-1. Завантажте репозиторій на GitHub.
-2. Імпортуйте проєкт у [Vercel](https://vercel.com).
-3. Додайте environment variables.
-4. Deploy.
+1. Создайте бота через [BotFather](https://t.me/BotFather), используя команду `/newbot`.
+2. Добавьте полученный токен в серверную переменную `TELEGRAM_BOT_TOKEN`.
+3. Откройте чат с ботом и нажмите Start. Для группы добавьте бота в нужную группу и отправьте ему команду.
+4. Получите ID нужного чата из поля `message.chat.id` ответа метода `getUpdates` Telegram Bot API. Для существующего бота с webhook учитывайте, что `getUpdates` работает после отключения webhook. Для заявок сайта подойдет отдельный бот.
+5. Укажите этот ID в `TELEGRAM_CHAT_ID`, пересоберите и перезапустите приложение.
+6. Отправьте тестовую заявку с сайта и проверьте сообщение в нужном чате.
+
+Токен остается на сервере. Переменные с префиксом `NEXT_PUBLIC_` доступны посетителям, поэтому секреты бота должны находиться в серверных переменных. Файл `.env.local` исключен из Git.
+
+Заявка содержит имя, телефон, email, компанию, описание задачи и путь страницы. Подтверждение отправки появляется после успешного ответа Telegram. При ошибке данные остаются в форме. Если настроены Telegram и CRM, успешную доставку определяет Telegram. Сбой дополнительной CRM фиксируется в серверном журнале. Поддерживается и отдельная доставка только в CRM.
+
+При отсутствии канала доставки API возвращает HTTP 503. Ошибка Telegram возвращает HTTP 502. Проверяются длина полей, формат контактов и ответ Telegram API, для сетевых запросов установлен таймаут. Добавлено скрытое поле против простых форм-ботов.
+
+## SEO и индексация
+
+Страницы услуг предварительно формируются при сборке и доступны поисковым роботам в HTML.
+
+- `/`
+- `/services/bas-automation`
+- `/services/programmist-1c`
+- `/services/ai-agents`
+- `/services/integrations`
+- `/ru/uslugi`
+
+Для страниц заданы уникальные title, description и canonical после настройки домена. Добавлены Organization и Service JSON-LD, Open Graph, изображение превью, robots.txt и sitemap.xml. Русский текст размечен `lang="ru"`, основная оболочка сайта остается украинской.
+
+После публикации укажите рабочий домен, проверьте доступность HTTPS, подтвердите сайт в [Google Search Console](https://search.google.com/search-console) и отправьте `https://ваш-домен/sitemap.xml`. Для подтверждения через метатег используйте `GOOGLE_SITE_VERIFICATION`. Отслеживайте индексирование страниц в Search Console. [Руководство Google по SEO](https://developers.google.com/search/docs/fundamentals/seo-starter-guide).
 
 ## Структура
 
-- `src/app` — layout, homepage, SEO, API
-- `src/components` — секції лендингу
-- `src/components/ui` — UI-примітиви
-- `src/lib` — config, lead abstraction, utils
+- `src/app` — страницы, SEO и API заявок
+- `src/components` — секции сайта и UI
+- `src/lib` — конфигурация, описание услуг и доставка заявок
+- `tests/lead.test.mjs` — проверки валидации и доставки с имитацией внешнего Telegram API
+
+## Хостинг
+
+Приложению нужен хостинг с поддержкой серверного Next.js, например Vercel или Node.js-сервер. Добавьте переменные окружения и выполните production-сборку. Маршрут `/api/lead` обрабатывает отправку формы на сервере.

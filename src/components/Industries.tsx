@@ -55,7 +55,7 @@ export function Industries() {
       className="bg-white"
       eyebrow="Кому ми допомагаємо"
       title="Для компаній, де важливі швидкість і точність даних"
-      description="Працюємо з малим і середнім бізнесом, де BAS має стати центром операцій, а не ще однією таблицею."
+      description="Адаптуємо BAS та автоматизацію до процесів торгівлі, виробництва, логістики й послуг."
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {industries.map((item) => (
