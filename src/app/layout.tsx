@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/next";
 import { siteConfig } from "@/lib/config";
 import "./globals.css";
 
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="min-h-full flex flex-col font-sans">
         <a href="#main-content" className="fixed top-3 left-3 z-[100] -translate-y-24 rounded-lg bg-white px-4 py-3 font-semibold text-navy shadow-lg focus:translate-y-0">Перейти до вмісту</a>
         {children}
+        <Analytics />
       </body>
     </html>
   );
